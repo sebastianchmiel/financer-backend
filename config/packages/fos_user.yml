@@ -1,0 +1,21 @@
+fos_user:
+    db_driver: orm
+    firewall_name: main
+    user_class: App\Entity\User\User
+#    registration:
+#        form:
+#            type: App\UserBundle\Form\UserRegisterType
+#        confirmation:
+#            enabled: true
+#            template: AppUserBundle:UserConfirmRegisterEmailTemplate:confirm_register.html.twig
+    from_email:
+        address: test@test.pl
+        sender_name: 'Potwierdzenie'
+    service:
+        mailer: fos_user.mailer.twig_swift
+#    resetting:
+#        email:
+#            template: AppUserBundle:UserResetPasswordEmailTemplate:reset_password.html.twig
+#            from_email:
+#                address: testsas@confronter.pl
+#                sender_name: 'Resetowanie hasła'

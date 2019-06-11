@@ -1,0 +1,208 @@
+<style>
+    body {
+        font-size: 12px;
+        font-family: Verdana, sans-serif;
+    }
+    
+    table.tableSmall td,
+    table.tableSmall th {
+        font-size: 11px;
+    }
+    
+    table td.borderBottom,
+    table th.borderBottom {
+        border-bottom: 1px solid #ddd;
+    }
+    
+    table td.borderBottomStrong,
+    table th.borderBottomStrong {
+        border-bottom: 2px solid #555;
+    }
+</style>
+<table style="width:100%;">
+    <tr>
+        <td valign="top" style="width:50%;">
+            <img src="{{ asset('images/arcyreklama_logo.png') }}" title="ArcyReklama" style="width:40%;"/>
+        </td>
+        <td style="width:50%; text-align: right;">
+            <strong>Sprzedawca:</strong><br />
+            <br />
+            {{ companyData['company_name']|default('') }}<br />
+            ul. {{ companyData['company_address_street']|default('') }}, {{ companyData['company_address_post_code']|default('') }} {{ companyData['company_address_city']|default('') }}<br />
+            <br />
+            NIP: {{ companyData['company_nip']|default('') }}<br />
+            <br />
+            Nr rachunku: {{ companyData['company_bank_account_number']|default('') }}
+        </td>
+    </tr>
+</table>
+
+
+<table style="width:100%; margin-top:30px; margin-bottom:30px; border: 1px solid #555; border-right:0; border-left:0;">
+    <tr>
+        <td>
+            <span style="font-size: 32px;">FAKTURA VAT</span>
+        </td>
+        <td style="text-align: right;">
+            Numer dokumentu: <strong>{{ item.invoiceNumber }}</strong><br />
+            <small>
+                <br />
+                Data wystawienia: {{ item.date|date('Y-m-d') }}<br />
+                Data dostawy/wykonania usługi: {{ item.dateOfService|date('Y-m-d') }}
+            </small>
+        </td>
+    </tr>
+</table>
+
+<table style="width:100%;">
+    <tr>
+        <td valign="top" style="width:45%; font-size: 14px;">
+            <strong>Nabywca:</strong><br />
+            <br />
+            {{ item.contractor.fullName }}<br />
+            ul. {{ item.contractor.addressStreet }}<br />
+            {{ item.contractor.addressPostCode }} {{ item.contractor.addressCity }}<br />
+            NIP: {{ item.contractor.nip }}
+        </td>
+        <td valign="top" style="width:55%; font-size: 14px;">&nbsp;</td>
+    </tr>
+</table>
+            
+<table class="tableSmall" cellspacing="0" cellpadding="4" style="width:100%; border: 2px solid #555; border-right:0; border-left:0; margin-top: 20px;">
+    <tr>
+        <th class="borderBottom" style="width:5%; text-align: left;">Lp.</th>
+        <th class="borderBottom"  style="width:35%; text-align: left;">Nazwa towaru/usługi</th>
+        <th class="borderBottom"  style="width:5%; text-align: right;">Ilość</th>
+        <th class="borderBottom"  style="width:5%; text-align: right;">J.m.</th>
+        <th class="borderBottom"  style="width:10%; text-align: right;">Cena netto</th>
+        <th class="borderBottom"  style="width:10%; text-align: right;">Wartość netto</th>
+        <th class="borderBottom"  style="width:5%; text-align: right;">VAT %</th>
+        <th class="borderBottom"  style="width:10%; text-align: right;">Kwota VAT</th>
+        <th class="borderBottom"  style="width:10%; text-align: right;">Wartość brutto</th>
+    </tr>
+    {% for position in item.billingItemPositions %}
+        <tr>
+            <td class="borderBottom" >{{ loop.index }}.</td>
+            <td class="borderBottom" >{{ position.name }}</td>
+            <td class="borderBottom"  style="text-align:right;">{{ position.quantity }}</td>
+            <td class="borderBottom" style="text-align:right;">{{ position.unit }}</td>
+            <td class="borderBottom"  style="text-align:right;">{{ (position.amountNetSingle/100)|number_format(2, '.', '') }} zł</td>
+            <td class="borderBottom"  style="text-align:right;">{{ (position.amountNet/100)|number_format(2, '.', '') }} zł</td>
+            <td class="borderBottom"  style="text-align:right;">{{ position.taxPercent }}</td>
+            <td class="borderBottom"  style="text-align:right;">{{ (position.taxValue/100)|number_format(2, '.', '') }} zł</td>
+            <td class="borderBottom"  style="text-align:right;">{{ (position.amountGross/100)|number_format(2, '.', '') }} zł</td>
+        </tr>
+    {% endfor %}
+</table>
+<small>metoda kasowa</small>
+
+<table class="tableSmall" style="width:100%; margin-top:20px;">
+    <tr>
+        <td style="width:40%;">
+            <table style="width:100%;" cellspacing="0" cellpadding="4" >
+                <tr>
+                    <th class="borderBottomStrong"  style="width:33%; text-align: left;">Forma płatności</th>
+                    <th class="borderBottomStrong" style="width:33%; text-align: left;">Termin płatności</th>
+                    <th class="borderBottomStrong" style="width:33%; text-align: right;">Kwota do zapłaty</th>
+                </tr>
+                <tr>
+                    <td>
+                        {% if item.paymentMethod == 'transfer' %}
+                                przelew
+                        {% elseif item.paymentMethod == 'money' %}
+                                gotówka
+                        {% endif %}
+                    </td>
+                    <td>{{ item.dateOfPayment|date('Y-m-d') }}</td>
+                    <td style="text-align: right;">{{ (item.amountGross/100)|number_format(2, '.', '') }} zł</td>
+                </tr>
+            </table>                        
+        </td>
+        <td style="width:5%;"></td>
+        <td style="width:55%;">
+            <table style="width:100%;" cellspacing="0" cellpadding="4" >
+                <tr>
+                    <th class="borderBottomStrong" style="width:15%; text-align: left;"></th>
+                    <th class="borderBottomStrong" style="width:10%; text-align: right;">VAT</th>
+                    <th class="borderBottomStrong" style="width:25%; text-align: right;">Wartość netto</th>
+                    <th class="borderBottomStrong" style="width:25%; text-align: right;">Kwota VAT</th>
+                    <th class="borderBottomStrong" style="width:25%; text-align: right;">Wartość brutto</th>
+                </tr>
+                <tr>
+                    <td>W tym:</td>
+                    <td>{{ item.taxPercent }}%</td>
+                    <td style="text-align: right;">{{ (item.amountNet/100)|number_format(2, '.', '') }} zł</td>
+                    <td style="text-align: right;">{{ (item.taxValue/100)|number_format(2, '.', '') }} zł</td>
+                    <td style="text-align: right;">{{ (item.amountGross/100)|number_format(2, '.', '') }} zł</td>
+                </tr>
+                <tr>
+                    <td><b>Suma:</b></td>
+                    <td></td>
+                    <td style="text-align: right; font-weight:bold;">{{ (item.amountNet/100)|number_format(2, '.', '') }} zł</td>
+                    <td style="text-align: right; font-weight:bold;">{{ (item.taxValue/100)|number_format(2, '.', '') }} zł</td>
+                    <td style="text-align: right; font-weight:bold;">{{ (item.amountGross/100)|number_format(2, '.', '') }} zł</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+                
+<p style="text-align:right; margin-top: 40px;">
+    <span style="font-size:24px;">Razem do zapłaty: {{ (item.amountGross/100)|number_format(2, '.', '') }} zł</span><br />
+    <small>Słownie: {{ amountGrossText }}</small>
+</p>
+
+
+<table style="width:100%; border-bottom: 2px solid #555; margin-top: 30px;">
+    <tr>
+        <td style="width:25%; text-align: right;">Zapłacono:</td>
+        <td style="width:20%; text-align: left;">--- zł</td>
+        <td style="width:10%; text-align: left;"></td>
+        <td style="width:25%; text-align: right;">Pozostaje do zapłaty:</td>
+        <td style="width:20%; text-align: left;">{{ (item.amountGross/100)|number_format(2, '.', '') }} zł</td>
+    </tr>
+</table>
+
+<table style="width:100%; margin-top: 60px;">
+    <tr>
+        <td style="width:35%; text-align: center;">
+            <table style="width:100%; border-bottom: 2px solid #555;">
+                <tr>
+                    <td><b>{{ companyData['company_person_authorized_to_issue_invoices']|default('') }}</b></td>
+                </tr>
+            </table>
+        </td>
+        <td style="width:5%;"></td>
+        <td style="width:20%; text-align: center;">
+            <table style="width:100%; border-bottom: 2px solid #555;">
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </td>
+        <td style="width:40%; text-align: center;">
+            <table style="width:100%; border-bottom: 2px solid #555;">
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: center;">
+            <small>Podpis osoby upoważnionej do wystawiania faktury</small>
+        </td>
+        <td></td>
+        <td style="text-align: center;">
+            <small>Data odbioru</small>
+        </td>
+        <td style="text-align: center;">
+            <small>Podpis osoby upowaznionej do odbioru faktury</small>
+        </td>
+    </tr>
+</table>
+    
+            
+
+
+{# 'company_person_authorized_to_issue_invoices'#}
